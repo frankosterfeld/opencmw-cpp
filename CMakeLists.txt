@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.15)
 
 project(opencmw-cpp CXX)
 include(cmake/StandardProjectSettings.cmake)
+include(cmake/Dependencies.cmake)
 include(cmake/PreventInSourceBuilds.cmake)
 
 # Link this 'library' to set the c++ standard / compile-time options requested
@@ -55,13 +56,6 @@ if(ENABLE_PCH)
     <map>
     <utility>)
 endif()
-
-# Set up some extra Conan dependencies based on our needs before loading Conan
-set(CONAN_EXTRA_REQUIRES "")
-set(CONAN_EXTRA_OPTIONS "")
-
-include(cmake/Conan.cmake)
-run_conan()
 
 add_subdirectory(include)
 

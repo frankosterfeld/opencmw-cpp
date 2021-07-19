@@ -1,17 +1,13 @@
-# Automatically enable catch2 to generate ctest targets
-if(CONAN_CATCH2_ROOT_DEBUG)
-  include(${CONAN_CATCH2_ROOT_DEBUG}/lib/cmake/Catch2/Catch.cmake)
-else()
-  include(${CONAN_CATCH2_ROOT}/lib/cmake/Catch2/Catch.cmake)
-endif()
+list(APPEND CMAKE_MODULE_PATH ${catch2_SOURCE_DIR}/contrib)
+include(CTest)
+include(Catch)
 
-include(${PROJECT_SOURCE_DIR}/cmake/ReflCpp.cmake)
 #find_package(refl-cpp REQUIRED)
 include_directories(${PROJECT_SOURCE_DIR}/include)
 include_directories(../include/)
 
 add_library(catch_main STATIC catch_main.cpp IoBuffer_tests.cpp IoSerialiser_tests.cpp IoClassSerialiser_tests.cpp ../include/opencmw.hpp ../include/IoBuffer.hpp ../include/IoSerialiser.hpp ../include/IoClassSerialiser.hpp ../include/MultiArray.hpp)
-target_link_libraries(catch_main PUBLIC CONAN_PKG::catch2 CONAN_PKG::fmt)
+target_link_libraries(catch_main PUBLIC catch2 fmt::fmt)
 target_link_libraries(catch_main PRIVATE project_options)
 target_include_directories(catch_main SYSTEM PUBLIC ${refl-cpp_SOURCE_DIR}/include)
 
