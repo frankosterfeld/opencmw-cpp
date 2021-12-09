@@ -95,6 +95,7 @@ private:
     std::unordered_map<std::string, Client>             _clients;
     std::unordered_map<std::string, Worker>             _workers;
     std::unordered_map<std::string, Service>            _services;
+    SubscriptionMatcher                                 _subscriptionMatcher;
 
     const std::string                                   _brokerName;
     const std::optional<EndpointURI>                    _dnsAddress;
@@ -163,6 +164,11 @@ public:
 
     Broker(const Broker &) = delete;
     Broker &operator=(const Broker &) = delete;
+
+    template<typename Filter>
+    void addFilter(const std::string &key) {
+        _subscriptionMatcher.addFilter<Filter>(key);
+    }
 
     enum class BindOption {
         DetectFromURI, ///< detect from uri which socket is meant (@see bind)
@@ -439,8 +445,7 @@ private:
 
         // TODO avoid clone() for last message sent out
         for (const auto &topicIt : _subscribedTopics) {
-            static const SubscriptionMatcher matcher;
-            if (matcher(*topicURI, topicIt.first)) {
+            if (_subscriptionMatcher(*topicURI, topicIt.first)) {
                 // sends notification with the topic that is expected by the client for its subscription
                 auto copy = message.clone();
                 copy.setSourceId(topicIt.first.str, MessageFrame::dynamic_bytes_tag{});

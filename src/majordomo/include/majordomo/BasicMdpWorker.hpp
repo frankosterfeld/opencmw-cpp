@@ -57,6 +57,7 @@ private:
     const Context                 _notifyContext;
     Socket                        _notifySocket;
     Socket                        _notifyListenerSocket;
+    SubscriptionMatcher           _subscriptionMatcher;
     std::set<TopicURI>            _activeSubcriptions;
 
 public:
@@ -80,6 +81,10 @@ public:
 
     void setRbacRole(std::string rbac) {
         _rbacRole = std::move(rbac);
+    }
+    template<typename Filter>
+    void addFilter(const std::string &key) {
+        _subscriptionMatcher.addFilter<Filter>(key);
     }
 
     void shutdown() {
@@ -199,9 +204,8 @@ private:
         if (auto message = MdpMessage::receive(_notifyListenerSocket)) {
             const auto topic = parseTopicURI(message->topic());
             assert(topic);
-            const auto matchesNotificationTopic = [&topic](const TopicURI &subscription) {
-                static const SubscriptionMatcher matcher;
-                return matcher(*topic, subscription);
+            const auto matchesNotificationTopic = [this, &topic](const TopicURI &subscription) {
+                return _subscriptionMatcher(*topic, subscription);
             };
 
             // TODO what to do here if worker is disconnected?
